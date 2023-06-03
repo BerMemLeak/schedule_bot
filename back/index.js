@@ -10,8 +10,8 @@ const start = () => {
   bot.on("message", async (msg) => {
     const text = msg.text;
     const chatId = msg.chat.id;
-    if (text === '') {
-      console.log('Error: message text is empty');
+    if (text === "") {
+      console.log("Error: message text is empty");
       return;
     }
     if (text === "/start") {
@@ -52,14 +52,13 @@ const start = () => {
       let result = "";
       let data;
       try {
-         data = require("./models/dead.json");
+        data = require("./models/dead.json");
       } catch (error) {
-        return bot.sendMessage(
-          chatId,
-          "скорее всего дедлайнов нема "
-        );}
+        return bot.sendMessage(chatId, "скорее всего дедлайнов нема ");
+      }
       try {
-        
+        if (!data?.length) throw new Error("Empty schedule");
+
         data.forEach((obj) => {
           for (let key in obj) {
             result += `---${key}---${obj[key].date}---${obj[key].comments}---\n`;
@@ -133,7 +132,7 @@ const start = () => {
       bot
         .sendMessage(
           chatId,
-          "Отправьте всю строку дедлайна, который хотите удалить, которую хотите удалить"
+          "Отправьте всю строку дедлайна, который хотите удалить"
         )
         .then(() => {
           try {
@@ -156,7 +155,8 @@ const start = () => {
                   data.splice(i, 1);
                   fs.writeFileSync(
                     "./models/dead.json",
-                    JSON.stringify(data, null, 2))
+                    JSON.stringify(data, null, 2)
+                  );
                   return bot.sendMessage(chatId, "Дедлайн удален");
                 }
               }
@@ -174,9 +174,7 @@ const start = () => {
     if (text === "/papa") {
       return bot.sendMessage(chatId, "Можешь подписаться", {
         reply_markup: {
-          inline_keyboard: [
-            [{ text: "Гитхаб Папы", web_app: { url: webAppUrl } }],
-          ],
+          inline_keyboard: [[{ text: "Гитхаб Папы", url: webAppUrl }]],
         },
       });
     }
@@ -192,6 +190,9 @@ bot.setMyCommands([
   { command: "/deletedeaddate", description: "Удалить дату дедлайна" },
   { command: "/papa", description: "чекни папу" },
 ]);
-
-start();
+try {
+  start();
+} catch (error) {
+  console.error(error.message);
+}
 // setTimeout(() => socket.end(), 30000)
